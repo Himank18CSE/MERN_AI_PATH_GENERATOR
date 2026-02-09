@@ -10,8 +10,7 @@ const getSmartTime = (item) => {
   let date =
     item.createdAt ||
     item.updatedAt ||
-    (item._id &&
-      new Date(parseInt(item._id.substring(0, 8), 16) * 1000));
+    (item._id && new Date(parseInt(item._id.substring(0, 8), 16) * 1000));
 
   if (!date) return "";
 
@@ -42,9 +41,7 @@ const Dashboard = () => {
   ================================ */
   const fetchHistory = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/career/dashboard"
-      );
+      const res = await axios.get("http://localhost:5000/api/career/dashboard");
       setHistory(res.data);
     } catch (err) {
       console.error("History fetch error:", err);
@@ -63,9 +60,7 @@ const Dashboard = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this caree?")) return;
 
-    await axios.delete(
-      `http://localhost:5000/api/career/${id}`
-    );
+    await axios.delete(`http://localhost:5000/api/career/${id}`);
 
     setHistory(history.filter((h) => h._id !== id));
   };
@@ -73,25 +68,27 @@ const Dashboard = () => {
   /* ===============================
      ⭐ TOGGLE FAVORITE
   ================================ */
- const toggleFavorite = async (id) => {
-  await axios.patch(
-    `http://localhost:5000/api/career/${id}/favorite`
-  );
+  const toggleFavorite = async (id) => {
+    try {
+      await axios.patch(`http://localhost:5000/api/career/${id}/favorite`);
 
-  setHistory(
-    history.map((h) =>
-      h._id === id ? { ...h, favorite: !h.favorite } : h
-    )
-  );
-};
-
+      // ✅ FUNCTIONAL STATE UPDATE (IMPORTANT)
+      setHistory((prevHistory) =>
+        prevHistory.map((h) =>
+          h._id === id ? { ...h, favorite: !h.favorite } : h,
+        ),
+      );
+    } catch (err) {
+      console.error("Favorite toggle error:", err);
+    }
+  };
 
   /* ===============================
      🔍 FILTER LOGIC
   ================================ */
   const filteredHistory =
     filter === "favorites"
-      ? history.filter((h) => h.favorite)
+      ? history.filter((h) => h.favorite === true)
       : history;
 
   /* ===============================
@@ -144,12 +141,8 @@ const Dashboard = () => {
       {filteredHistory.length === 0 ? (
         <div className="text-center text-gray-500 mt-20">
           <p className="text-2xl mb-2">🌱</p>
-          <p className="text-lg font-medium">
-            No career history found
-          </p>
-          <p className="text-sm">
-            Generate a career path to see it here
-          </p>
+          <p className="text-lg font-medium">No career history found</p>
+          <p className="text-sm">Generate a career path to see it here</p>
         </div>
       ) : (
         /* ===============================
@@ -175,9 +168,9 @@ const Dashboard = () => {
               {/* ⭐ FAVORITE */}
               <button
                 onClick={() => toggleFavorite(item._id)}
-                className="absolute top-2 left-2 text-xl"
+                className="absolute top-2 left-2 text-xl cursor-pointer"
               >
-                {item.favorite ? "⭐" : "☆"}
+                {item.favorite === true ? "⭐" : "☆"}
               </button>
 
               {/* CAREER TITLE */}
@@ -196,18 +189,12 @@ const Dashboard = () => {
               </p>
 
               {/* ROADMAP */}
-              <h4 className="text-sm font-semibold mb-1">
-                Roadmap
-              </h4>
+              <h4 className="text-sm font-semibold mb-1">Roadmap</h4>
 
               <ul className="text-sm space-y-1">
-                {item.roadmap
-                  .filter(Boolean)
-                  .map((r, i) => (
-                    <li key={i}>
-                      • {typeof r === "string" ? r : r.step}
-                    </li>
-                  ))}
+                {item.roadmap.filter(Boolean).map((r, i) => (
+                  <li key={i}>• {typeof r === "string" ? r : r.step}</li>
+                ))}
               </ul>
             </motion.div>
           ))}
