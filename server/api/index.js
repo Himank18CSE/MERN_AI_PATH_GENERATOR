@@ -7,7 +7,16 @@ const careerRoutes = require("../routes/careerRoutes");
 const authRoutes= require("../routes/authRoutes")
 
 dotenv.config();
-connectDB();
+
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    return res.status(500).json({ error: "DB connection failed" });
+  }
+});
 
 
 
