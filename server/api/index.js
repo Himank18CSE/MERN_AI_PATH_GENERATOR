@@ -2,9 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
-const connectDB = require("./config/db");
-const careerRoutes = require("./routes/careerRoutes");
-const authRoutes= require("./routes/authRoutes")
+const connectDB = require("../config/db");
+const careerRoutes = require("../routes/careerRoutes");
+const authRoutes= require("../routes/authRoutes")
 
 dotenv.config();
 connectDB();
@@ -24,7 +24,3 @@ app.get("/", (req, res) => {
   res.send("Backend working 🚀");
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(` Server running on port ${PORT}`);
-});
